@@ -1,3 +1,0 @@
-# Jabberwocky
-## BY LEWIS CARROLL
-
