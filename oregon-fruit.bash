@@ -1,17 +1,35 @@
 #!/bin/bash
 
+branchList=()
+
 popdAndExit() {
   popd > /dev/null 2>&1
   exit 1
 }
 
+ticketToBranch() {
+  epicTicket=$1
+  shift
+  ticketList=$*
+
+  for ticket in $ticketList; do
+    branchName=`echo "epic/" $epicTicket "/$ticket" | sed 's/ //g'`
+    # branchList+=("epic/" $epicTicket "/$ticket")
+    echo "Branch would be $branchName"
+  done
+
+  return 0
+}
+
 if [ $# -lt 3 ]; then
-  echo "Usage: $0 [path to repo] [dest branch] [ticket list]"
+  echo "Usage: $0 [path to repo] [dest branch] [epic ticket] [ticket list]"
   exit 1
 fi
 
+epicTicket=$3
 destBranch=$2
 path=$1
+shift
 shift
 shift
 
@@ -26,6 +44,11 @@ if [ $? -eq 1 ]; then
   echo "git-checkout of branch \"$destBranch\" failed"
   popdAndExit
 fi
+
+# Assume clean/best case. We'll generalize later.
+# We have this ticket list. Let's make them into branch names.
+
+ticketToBranch $epicTicket $*
 
 echo "Everything looks good; would continue"
 popd > /dev/null 2>&1
