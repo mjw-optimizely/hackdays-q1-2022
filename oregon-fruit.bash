@@ -13,18 +13,18 @@ if [ $? -eq 1 ]; then
   exit 1
 fi
 
-currentBranch=`git branch | grep ^* | cut -c 3-`
-read -p "The current branch is \"$currentBranch\". Is this the branch you're cherry-picking to? "
+pickBranch=`git branch | grep ^* | cut -c 3-`
+read -p "The current branch is \"$pickBranch\". Is this the branch you're cherry-picking to? "
 if [ $REPLY != "y" -a $REPLY != "Y" ]; then
   echo "Well, check out the right branch and try again"
   popd > /dev/null 2>&1
   exit 1
 fi
 
-shift
-
 git branch -a | sed 's/remotes\/origin\///' | sort | uniq > available_branches.out
 branchesExist=1
+
+shift
 
 for branch in $*
 do
@@ -35,9 +35,25 @@ do
   fi
 done
 
+rm -f available_branches.out
+
 if [ $branchesExist -eq 0 ]; then
   popd > /dev/null 2>&1
   exit 1
 fi
 
-echo "Everything looks good. Would continue."
+for branch in $*
+do
+  git checkout --quiet $branch 
+  safeBranch=`echo $branch | sed 's/\//_/g'`
+  git log --oneline --reverse | grep $branch # | grep -v "Merge branch" | grep -v "Merge pull" > ${safeBranch}_pickable_commits.out
+  # git checkout --quiet $pickBranch
+  exit 1
+done
+
+popd > /dev/null 2>&1
+
+
+
+
+
