@@ -1,6 +1,6 @@
 <template>
   <img alt="Vue logo" src="./assets/logo.png">
-  <CmdCmd/>
+  <CmdCmd cmd="ls -y"/>
 </template>
 
 <script>
