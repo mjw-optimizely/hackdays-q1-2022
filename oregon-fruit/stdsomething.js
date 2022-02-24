@@ -1,0 +1,6 @@
+console.log('moo (stdout) 1')
+console.error('quack (stderr) 1')
+console.log('moo (stdout) 2')
+console.error('quack (stderr) 2')
+console.log('moo (stdout) 3')
+console.error('quack (stderr) 3')

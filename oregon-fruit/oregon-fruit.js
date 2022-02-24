@@ -2,8 +2,10 @@ const { spawn } = require('child_process');
 
 (async function main() {
   try {
-    const out = await runCommand('ls', ['-ltr'])
-    console.log(out)
+    const output = await runCommand('node', ['stdsomething.js'])
+
+    console.log('Out: ' + output.stdout)
+    console.log('Err: ' + output.stderr)
   }
   catch (e) {
     console.error('main exception: ' + e)
@@ -15,15 +17,22 @@ const { spawn } = require('child_process');
 function runCommand(commandText, args) {
   return new Promise((resolve, reject) => {
     const cmd = spawn(commandText, args);
-
+    var error = false
+    var out = ''
+    var err = ''
+    
     cmd.stdout.on('data', data => {
-      resolve(data.toString())
+      out += data.toString()
     });
 
-    // TODO: Do I need stderr? How would I handle a case with both stdout and stderr?
+    cmd.stderr.on('data', data => {
+      err += data.toString()
+    });
 
     cmd.on('error', err => {
       var msg
+
+      error = true
 
       if (err.errno === 'ENOENT') {
         msg = 'Didn\'t recognize the command "' + err.path + '"'
@@ -35,8 +44,10 @@ function runCommand(commandText, args) {
       reject(msg)
     })
 
-    // cmd.on('exit', () => {
-    //   // Unsure if I need this or not
-    // })
+    cmd.on('exit', () => {
+      if (!error) {
+        resolve({stdout: out, stderr: err})
+      }
+    })
   })
 }
