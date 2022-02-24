@@ -1,28 +1,42 @@
 const { spawn } = require('child_process');
 
 (async function main() {
-  const ls = spawn('ls', ['-ltr']);
-
-  ls.stdout.on('data', (data) => {
-    console.log(data.toString());
-  });
-
-  ls.stderr.on('data', (data) => {
-    console.error('stderr: ' + data);
-  });
-
-  ls.on('error', error => {
-    if (error.errno === 'ENOENT') {
-      console.error('Didn\'t recognize the command "' + error.path + '"')
-    }
-    else {
-      console.error('Misc error: ' + JSON.stringify(error))
-    }
-  })
-
-  ls.on('exit', () => {
-    process.exit()
-  })
-
-  await new Promise(r => setTimeout(r, 2000));
+  try {
+    const out = await runCommand('ls', ['-ltr'])
+    console.log(out)
+  }
+  catch (e) {
+    console.error('main exception: ' + e)
+  }
 })()
+
+//----------------------------------------------------------------------------
+// runCommand
+function runCommand(commandText, args) {
+  return new Promise((resolve, reject) => {
+    const cmd = spawn(commandText, args);
+
+    cmd.stdout.on('data', data => {
+      resolve(data.toString())
+    });
+
+    // TODO: Do I need stderr? How would I handle a case with both stdout and stderr?
+
+    cmd.on('error', err => {
+      var msg
+
+      if (err.errno === 'ENOENT') {
+        msg = 'Didn\'t recognize the command "' + err.path + '"'
+      }
+      else {
+        msg = 'Misc error: ' + JSON.stringify(err)
+      }
+
+      reject(msg)
+    })
+
+    // cmd.on('exit', () => {
+    //   // Unsure if I need this or not
+    // })
+  })
+}
