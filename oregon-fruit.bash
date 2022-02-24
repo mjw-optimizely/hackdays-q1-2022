@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -lt 2 ]; then
-  echo "Usage: $0 [path] [branch_names]"
+  echo "Usage: $0 [path] [dest branch] [source branches]"
   exit 1
 fi
 
@@ -9,7 +9,7 @@ dir=$1
 
 pushd $dir > /dev/null 2>&1
 if [ $? -eq 1 ]; then
-  echo "Couldn't change directory to \"$dir\""
+  echo "pushd to \"$dir\""
   exit 1
 fi
 
